@@ -1,6 +1,8 @@
 import os
+import shutil
 from datetime import datetime
 from wsgiref.util import FileWrapper
+import shutil
 
 from django.core.files.base import ContentFile
 from django.http import HttpResponse, HttpResponseRedirect
@@ -14,7 +16,7 @@ from .models import Documentation
 
 DOC_DIR = os.path.abspath(os.path.dirname(__name__)) + '/docupload/docs/'
 
-
+ 
 def index(request):
     '''View for /doc/'''
 
@@ -101,7 +103,7 @@ def display(request, doc_id):
         file.close()
         return HttpResponse(pdf, 'application/pdf')
     else:
-        with open('docupload/docs/' + str(db_doc.doc_file)) as doc:
+        with open('docupload/docs/' + str(db_doc.doc_file).split('.')[0] + '/' + str(db_doc.doc_file)) as doc: 
             return HttpResponse(doc)
 
 def download_original(request, doc_id):
@@ -115,3 +117,9 @@ def download_original(request, doc_id):
     response = HttpResponse(FileWrapper(file), content_type='application/force-download')
     response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(full_filename)
     return response
+
+def delete(request, doc_id):
+    doc = Documentation.objects.get(id=doc_id)
+    doc.delete()
+    
+    return HttpResponseRedirect('/doc/')    

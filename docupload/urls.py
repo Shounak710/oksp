@@ -10,4 +10,5 @@ urlpatterns = [
     url(r'^editor_choice/wysiwyg$', views.wysiwyg_editor, name='wysiwyg_editor'),
     url(r'^(?P<doc_id>\d+)/$', views.display, name='upload'),
     url(r'^original/(?P<doc_id>\d+)/$', views.download_original, name='download_original'),
+    url(r'^delete/(?P<doc_id>\d+)/$', views.delete, name='delete'),
 ]
