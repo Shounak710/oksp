@@ -16,7 +16,7 @@ from .models import Documentation
 
 DOC_DIR = os.path.abspath(os.path.dirname(__name__)) + '/docupload/docs/'
 
- 
+
 def index(request):
     '''View for /doc/'''
 
@@ -73,7 +73,7 @@ def wysiwyg_editor(request):
 
     return render(request, "docupload/wysiwyg.html")
 
-def upload(request): 
+def upload(request):
     '''View for /doc/upload/'''
 
     html = HTMLifier(doc_base_path=DOC_DIR)
@@ -96,14 +96,15 @@ def display(request, doc_id):
 
     db_doc = Documentation.objects.filter(id=doc_id)[0]
     ext = str(db_doc.doc_file).split('.')[-1]
+    name = str(db_doc.doc_file).split('.')[0]
     if ext == 'pdf':
-        file = open('docupload/docs/' + str(db_doc.doc_file), 'r+b')
+        file = open('docupload/docs/' +'%s/'%(name)+ str(db_doc.doc_file), 'r+b')
         file.seek(0)
         pdf = file.read()
         file.close()
         return HttpResponse(pdf, 'application/pdf')
     else:
-        with open('docupload/docs/' + str(db_doc.doc_file).split('.')[0] + '/' + str(db_doc.doc_file)) as doc: 
+        with open('docupload/docs/' + str(db_doc.doc_file).split('.')[0] + '/' + str(db_doc.doc_file)) as doc:
             return HttpResponse(doc)
 
 def download_original(request, doc_id):
@@ -113,13 +114,13 @@ def download_original(request, doc_id):
     ext = db_doc.extension
     filename = str(db_doc.doc_file).split('.')[0]
     full_filename = filename + '.' + ext
-    file = open('docupload/docs/' + full_filename, 'r+b')
+    file = open('docupload/docs/' +'%s/'%(filename) + full_filename, 'r+b')
     response = HttpResponse(FileWrapper(file), content_type='application/force-download')
     response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(full_filename)
     return response
 
 def delete(request, doc_id):
     doc = Documentation.objects.get(id=doc_id)
+    shutil.rmtree("docupload/docs/%s" %doc.doc_file.path.split(".")[0].split("/")[-1])
     doc.delete()
-    
-    return HttpResponseRedirect('/doc/')    
+    return HttpResponseRedirect('/doc/')
